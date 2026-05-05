@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    container_name: law-analyse-db
+    environment:
+      POSTGRES_USER: lawanalyse
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
+      POSTGRES_DB: law_analyse
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lawanalyse"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Frontend only (no backend, no AI processing)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: law-analyse-frontend
+    environment:
+      PUBLIC_API_URL: http://localhost:8000
+    ports:
+      - "4321:4321"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
