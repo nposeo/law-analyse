@@ -1,0 +1,110 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { api } from '../lib/api';
+
+let laws = [];
+let error = '';
+
+try {
+  laws = await api.getLaws();
+} catch (e) {
+  error = 'Не вдалося завантажити закони. Переконайтеся, що backend запущений.';
+}
+---
+
+<Layout title="Головна">
+  <div class="space-y-8">
+    <div class="text-center">
+      <h1 class="text-4xl font-bold text-gray-900 mb-4">
+        Law Analyse
+      </h1>
+      <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+        AI-платформа для структурування та аналізу законів України
+      </p>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+      <h2 class="text-2xl font-semibold mb-4">Можливості</h2>
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="space-y-2">
+          <div class="text-3xl">📄</div>
+          <h3 class="font-semibold">Парсинг PDF</h3>
+          <p class="text-sm text-gray-600">
+            Автоматична екстракція статей з PDF документів
+          </p>
+        </div>
+        <div class="space-y-2">
+          <div class="text-3xl">🤖</div>
+          <h3 class="font-semibold">AI Аналіз</h3>
+          <p class="text-sm text-gray-600">
+            Adversarial review для точної екстракції норм
+          </p>
+        </div>
+        <div class="space-y-2">
+          <div class="text-3xl">💬</div>
+          <h3 class="font-semibold">Проста мова</h3>
+          <p class="text-sm text-gray-600">
+            Пояснення юридичних термінів зрозумілою мовою
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {error && (
+      <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+        <p class="text-red-800">{error}</p>
+      </div>
+    )}
+
+    <div class="bg-white rounded-lg shadow">
+      <div class="px-6 py-4 border-b">
+        <h2 class="text-xl font-semibold">Закони</h2>
+      </div>
+
+      {laws.length === 0 && !error ? (
+        <div class="px-6 py-12 text-center text-gray-500">
+          <p>Поки що немає завантажених законів</p>
+          <p class="text-sm mt-2">Завантажте PDF через API або backend</p>
+        </div>
+      ) : (
+        <div class="divide-y">
+          {laws.map((law) => (
+            <a
+              href={`/law/${law.id}`}
+              class="block px-6 py-4 hover:bg-gray-50 transition"
+            >
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="font-medium text-gray-900">{law.title}</h3>
+                  {law.document_number && (
+                    <p class="text-sm text-gray-500 mt-1">
+                      № {law.document_number}
+                    </p>
+                  )}
+                </div>
+                <div class="flex items-center gap-3">
+                  <span
+                    class={`px-3 py-1 rounded-full text-xs font-medium ${
+                      law.processing_status === 'completed'
+                        ? 'bg-green-100 text-green-800'
+                        : law.processing_status === 'processing'
+                        ? 'bg-yellow-100 text-yellow-800'
+                        : law.processing_status === 'failed'
+                        ? 'bg-red-100 text-red-800'
+                        : 'bg-gray-100 text-gray-800'
+                    }`}
+                  >
+                    {law.processing_status}
+                  </span>
+                  <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+</Layout>

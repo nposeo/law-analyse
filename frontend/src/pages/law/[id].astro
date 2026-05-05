@@ -1,0 +1,131 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { api } from '../../lib/api';
+import LawTree from '../../components/LawTree';
+import ArticleView from '../../components/ArticleView';
+
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect('/');
+}
+
+let law;
+let error = '';
+
+try {
+  law = await api.getLaw(id);
+} catch (e) {
+  error = 'Не вдалося завантажити закон';
+}
+---
+
+<Layout title={law?.title || 'Закон'}>
+  {error ? (
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+      <p class="text-red-800">{error}</p>
+      <a href="/" class="text-red-600 underline mt-2 inline-block">
+        Повернутися на головну
+      </a>
+    </div>
+  ) : law ? (
+    <div class="space-y-6">
+      {/* Header */}
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-start justify-between">
+          <div>
+            <a
+              href="/"
+              class="text-sm text-blue-600 hover:underline mb-2 inline-block"
+            >
+              ← Назад до списку
+            </a>
+            <h1 class="text-3xl font-bold text-gray-900 mt-2">
+              {law.title}
+            </h1>
+            {law.document_number && (
+              <p class="text-gray-600 mt-2">
+                Документ № {law.document_number}
+              </p>
+            )}
+          </div>
+          <span
+            class={`px-3 py-1 rounded-full text-sm font-medium ${
+              law.processing_status === 'completed'
+                ? 'bg-green-100 text-green-800'
+                : law.processing_status === 'processing'
+                ? 'bg-yellow-100 text-yellow-800'
+                : law.processing_status === 'failed'
+                ? 'bg-red-100 text-red-800'
+                : 'bg-gray-100 text-gray-800'
+            }`}
+          >
+            {law.processing_status}
+          </span>
+        </div>
+
+        {law.processing_status === 'processing' && (
+          <div class="mt-4 bg-yellow-50 border border-yellow-200 rounded p-3">
+            <p class="text-sm text-yellow-800">
+              ⏳ Закон обробляється. Оновіть сторінку через кілька хвилин.
+            </p>
+          </div>
+        )}
+
+        {law.processing_status === 'failed' && (
+          <div class="mt-4 bg-red-50 border border-red-200 rounded p-3">
+            <p class="text-sm text-red-800">
+              ❌ Помилка обробки. Спробуйте завантажити файл знову.
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Main Content */}
+      {law.articles && law.articles.length > 0 ? (
+        <div class="grid lg:grid-cols-3 gap-6">
+          {/* Left: Article Tree */}
+          <div class="lg:col-span-1">
+            <LawTree
+              articles={law.articles}
+              onArticleSelect={(article) => {
+                // Client-side state management handled by React
+              }}
+              client:load
+            />
+          </div>
+
+          {/* Right: Article View */}
+          <div class="lg:col-span-2">
+            <ArticleView article={null} client:load />
+          </div>
+        </div>
+      ) : (
+        <div class="bg-white rounded-lg shadow p-12 text-center text-gray-500">
+          <p>Статті ще не екстраговані</p>
+          {law.processing_status === 'pending' && (
+            <p class="text-sm mt-2">
+              Запустіть обробку через API: POST /process/{law.id}
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  ) : null}
+</Layout>
+
+<script>
+  // Client-side article selection handling
+  import type { Article } from '../../lib/api';
+
+  let selectedArticle: Article | null = null;
+
+  document.addEventListener('article-selected', ((e: CustomEvent) => {
+    selectedArticle = e.detail;
+    // Update ArticleView component
+    const articleView = document.querySelector('[data-article-view]');
+    if (articleView) {
+      // React component will handle the update
+    }
+  }) as EventListener);
+</script>
