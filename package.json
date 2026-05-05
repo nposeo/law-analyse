@@ -1,0 +1,31 @@
+{
+  "name": "law-analyse",
+  "version": "1.0.0",
+  "description": "AI-powered Ukrainian law analysis platform",
+  "scripts": {
+    "setup": "bash setup.sh",
+    "dev": "bash dev.sh",
+    "test": "cd backend && pytest",
+    "test:coverage": "cd backend && pytest --cov=app --cov-report=html",
+    "backend": "cd backend && uvicorn app.main:app --reload",
+    "frontend": "cd frontend && npm run dev",
+    "build:frontend": "cd frontend && npm run build",
+    "migrate": "cd backend && alembic upgrade head",
+    "migrate:create": "cd backend && alembic revision --autogenerate -m"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR-USERNAME/law-analyse.git"
+  },
+  "keywords": [
+    "legal-tech",
+    "ai",
+    "nlp",
+    "ukrainian-law",
+    "fastapi",
+    "astro",
+    "react"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}
