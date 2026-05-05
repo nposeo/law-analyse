@@ -44,5 +44,4 @@ jobs:
         file: ./frontend/Dockerfile
         push: false
         tags: law-analyse-frontend:latest
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
+        no-cache: true
