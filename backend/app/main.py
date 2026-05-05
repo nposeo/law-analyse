@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import get_settings
+from app.api.routes import laws, articles, process
 
 settings = get_settings()
 
@@ -18,6 +19,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include routers
+app.include_router(laws.router)
+app.include_router(articles.router)
+app.include_router(process.router)
 
 
 @app.get("/")
