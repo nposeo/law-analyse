@@ -25,7 +25,7 @@ gh repo create law-analyse --public --source=. --push
 cd D:\server\OpenServer\domains\LawAnalyse\www
 
 # Додати remote
-git remote add origin https://github.com/YOUR-USERNAME/law-analyse.git
+git remote add origin https://github.com/nposeo/law-analyse.git
 
 # Перейменувати branch на main (якщо потрібно)
 git branch -M main
