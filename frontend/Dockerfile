@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 
 # Copy source code
 COPY . .
@@ -22,7 +22,7 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package*.json ./
 
 # Install only production dependencies
-RUN npm ci --only=production
+RUN npm install --only=production
 
 # Expose port
 EXPOSE 4321
