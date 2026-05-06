@@ -2,9 +2,14 @@
 
 ## 🎉 First Production Release
 
-**Release Date:** 2026-05-05  
+**Release Date:** 2026-05-06  
 **Repository:** https://github.com/nposeo/law-analyse  
-**Status:** Production Ready
+**Status:** Production Ready ✅ DEPLOYED
+
+**Production URLs:**
+- Frontend: https://law-analyse-zeta.vercel.app/
+- Backend: https://law-analyse-backend.up.railway.app/
+- API Docs: https://law-analyse-backend.up.railway.app/docs
 
 ---
 
@@ -68,12 +73,13 @@ Law Analyse is an AI-powered platform for analyzing Ukrainian legal documents. I
 ## 📊 STATISTICS
 
 ### Development
-- **Time:** ~4 hours
-- **Commits:** 17 (all from nposeo <nposeo@gmail.com>)
-- **Files:** 71 total
+- **Time:** 2 days (2026-05-05 to 2026-05-06)
+- **Total Hours:** ~10 hours
+- **Commits:** 42 (all from nposeo <nposeo@gmail.com>)
+- **Files:** 88 total
   - 29 code files (Python, TypeScript, Astro)
-  - 19 documentation files (Markdown)
-  - 23 configuration files
+  - 31 documentation files (Markdown)
+  - 28 configuration files
 
 ### Code
 - **Lines of code:** ~4,500+
