@@ -28,8 +28,8 @@ class Law(Base):
     issuing_body = Column(String(255))
     pdf_url = Column(Text)
     processing_status = Column(
-        Enum(ProcessingStatus),
-        default=ProcessingStatus.PENDING,
+        String(20),
+        default="pending",
         nullable=False
     )
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
