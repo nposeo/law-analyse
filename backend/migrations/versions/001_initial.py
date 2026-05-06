@@ -17,9 +17,21 @@ depends_on = None
 
 
 def upgrade():
-    # Create enum type for processing status
-    processing_status = postgresql.ENUM('pending', 'processing', 'completed', 'failed', name='processingstatus')
-    processing_status.create(op.get_bind(), checkfirst=True)
+    # Create enum type for processing status (skip if exists)
+    from sqlalchemy import inspect
+    conn = op.get_bind()
+    inspector = inspect(conn)
+
+    # Check if enum type exists
+    result = conn.execute(sa.text("SELECT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'processingstatus')"))
+    enum_exists = result.scalar()
+
+    if not enum_exists:
+        processing_status = postgresql.ENUM('pending', 'processing', 'completed', 'failed', name='processingstatus')
+        processing_status.create(conn, checkfirst=True)
+
+    # Use existing enum type
+    processing_status = postgresql.ENUM('pending', 'processing', 'completed', 'failed', name='processingstatus', create_type=False)
 
     # Create laws table
     op.create_table(
