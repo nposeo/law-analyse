@@ -6,7 +6,6 @@ from app.core.database import get_db
 from app.services.db_service import DatabaseService
 from app.services.pdf_parser import parse_law_pdf
 from app.services.ai_extractor import extract_norm_from_article
-from app.models.database import ProcessingStatus
 from app.models.schemas import ProcessingStatusResponse, ArticleCreate, NormCreate
 
 router = APIRouter(prefix="/process", tags=["processing"])
@@ -26,10 +25,18 @@ async def process_law_background(law_id: UUID, pdf_path: str, db: Session):
 
     try:
         # Update status to processing
-        db_service.update_law_status(law_id, ProcessingStatus.PROCESSING)
+        db_service.update_law_status(law_id, "processing")
+
+        # Check if file exists
+        import os
+        if not os.path.exists(pdf_path):
+            raise FileNotFoundError(f"PDF file not found: {pdf_path}")
+
+        print(f"Processing law {law_id} from {pdf_path}")
 
         # Step 1: Parse PDF
         articles = parse_law_pdf(pdf_path)
+        print(f"Extracted {len(articles)} articles")
 
         # Step 2 & 3: Process each article
         for parsed_article in articles:
@@ -68,12 +75,15 @@ async def process_law_background(law_id: UUID, pdf_path: str, db: Session):
                 print(f"Error extracting norm for article {parsed_article.article_number}: {e}")
 
         # Update status to completed
-        db_service.update_law_status(law_id, ProcessingStatus.COMPLETED)
+        db_service.update_law_status(law_id, "completed")
+        print(f"Successfully processed law {law_id}")
 
     except Exception as e:
         # Update status to failed
-        db_service.update_law_status(law_id, ProcessingStatus.FAILED)
+        import traceback
+        db_service.update_law_status(law_id, "failed")
         print(f"Error processing law {law_id}: {e}")
+        traceback.print_exc()
 
 
 @router.post("/{law_id}", response_model=ProcessingStatusResponse)
@@ -102,7 +112,7 @@ async def trigger_processing(
         raise HTTPException(status_code=400, detail="Law has no PDF file")
 
     # Check if already processing
-    if law.processing_status == ProcessingStatus.PROCESSING:
+    if law.processing_status == "processing":
         raise HTTPException(status_code=400, detail="Law is already being processed")
 
     # Add background task
@@ -110,7 +120,7 @@ async def trigger_processing(
 
     return ProcessingStatusResponse(
         law_id=law_id,
-        status=ProcessingStatus.PROCESSING.value,
+        status="processing",
         message="Processing started"
     )
 
@@ -129,14 +139,14 @@ async def get_processing_status(
 
     # Calculate progress if processing
     progress = None
-    if law.processing_status == ProcessingStatus.PROCESSING:
+    if law.processing_status == "processing":
         articles = db_service.get_articles_by_law(law_id)
         # Rough estimate based on articles created
         progress = len(articles) * 2.5  # Assuming ~40 articles total
 
     return ProcessingStatusResponse(
         law_id=law_id,
-        status=law.processing_status.value,
+        status=law.processing_status,
         progress=progress,
-        message=f"Status: {law.processing_status.value}"
+        message=f"Status: {law.processing_status}"
     )
