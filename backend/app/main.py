@@ -43,3 +43,22 @@ async def health():
         "status": "healthy",
         "environment": settings.environment
     }
+
+
+@app.get("/debug/paths")
+async def debug_paths():
+    """Debug endpoint to check paths on Railway."""
+    import os
+    from pathlib import Path
+
+    return {
+        "cwd": os.getcwd(),
+        "app_exists": os.path.exists("/app"),
+        "app_uploads_exists": os.path.exists("/app/uploads"),
+        "uploads_exists": os.path.exists("uploads"),
+        "uploads_absolute": str(Path("uploads").absolute()),
+        "env_vars": {
+            "PORT": os.getenv("PORT"),
+            "DATABASE_URL": "***" if os.getenv("DATABASE_URL") else None
+        }
+    }
