@@ -1,7 +1,4 @@
 {
-  "functions": {
-    "**/*.astro": {
-      "runtime": "nodejs20.x"
-    }
-  }
+  "buildCommand": "npm run build",
+  "framework": "astro"
 }
