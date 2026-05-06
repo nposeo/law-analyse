@@ -69,9 +69,13 @@ async def upload_law_pdf(
         import os
         from pathlib import Path
 
-        # Use relative path from backend directory
-        upload_dir = Path("uploads").absolute()
-        upload_dir.mkdir(exist_ok=True)
+        # Use /app/uploads for Railway volume, fallback to local uploads/
+        if os.path.exists("/app"):
+            upload_dir = Path("/app/uploads")
+        else:
+            upload_dir = Path("uploads").absolute()
+
+        upload_dir.mkdir(exist_ok=True, parents=True)
 
         file_path = upload_dir / file.filename
 
