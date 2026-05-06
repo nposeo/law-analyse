@@ -29,7 +29,17 @@ async def process_law_background(law_id: UUID, pdf_path: str, db: Session):
 
         # Check if file exists
         import os
+        print(f"Checking file: {pdf_path}")
+        print(f"Current working directory: {os.getcwd()}")
+        print(f"File exists: {os.path.exists(pdf_path)}")
+
         if not os.path.exists(pdf_path):
+            # Try to list uploads directory
+            uploads_dir = "uploads"
+            if os.path.exists(uploads_dir):
+                print(f"Files in uploads/: {os.listdir(uploads_dir)}")
+            else:
+                print(f"uploads/ directory does not exist")
             raise FileNotFoundError(f"PDF file not found: {pdf_path}")
 
         print(f"Processing law {law_id} from {pdf_path}")

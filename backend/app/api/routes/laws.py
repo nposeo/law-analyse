@@ -80,6 +80,10 @@ async def upload_law_pdf(
             content = await file.read()
             f.write(content)
 
+        print(f"File saved to: {file_path}")
+        print(f"File exists: {file_path.exists()}")
+        print(f"File size: {file_path.stat().st_size if file_path.exists() else 0}")
+
         # Create law record
         db_service = DatabaseService(db)
         law_data = LawCreate(
