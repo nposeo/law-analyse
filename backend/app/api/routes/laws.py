@@ -92,7 +92,7 @@ async def upload_law_pdf(
         db_service = DatabaseService(db)
         law_data = LawCreate(
             title=title or file.filename,
-            pdf_url=str(file_path)
+            pdf_url=str(file_path)  # Store full absolute path
         )
         law = db_service.create_law(law_data)
 
