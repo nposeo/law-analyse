@@ -5,8 +5,8 @@ from functools import lru_cache
 class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
 
-    database_url: str
-    openai_api_key: str
+    database_url: str = ""
+    openai_api_key: str = ""
     environment: str = "development"
 
     # CORS settings
