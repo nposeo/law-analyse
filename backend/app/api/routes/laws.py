@@ -16,9 +16,15 @@ async def create_law(
     db: Session = Depends(get_db)
 ):
     """Create a new law."""
-    db_service = DatabaseService(db)
-    law = db_service.create_law(law_data)
-    return law
+    try:
+        db_service = DatabaseService(db)
+        law = db_service.create_law(law_data)
+        return law
+    except Exception as e:
+        import traceback
+        print(f"Error creating law: {e}")
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Failed to create law: {str(e)}")
 
 
 @router.get("/", response_model=List[LawResponse])
@@ -53,31 +59,39 @@ async def upload_law_pdf(
     For MVP, this creates a law record and saves the file.
     Processing is triggered separately via /process endpoint.
     """
-    # Validate file type
-    if not file.filename.endswith('.pdf'):
-        raise HTTPException(status_code=400, detail="Only PDF files are allowed")
+    try:
+        # Validate file type
+        if not file.filename.endswith('.pdf'):
+            raise HTTPException(status_code=400, detail="Only PDF files are allowed")
 
-    # For MVP, we'll store the file path
-    # In production, upload to cloud storage (S3, etc.)
-    import os
-    from pathlib import Path
+        # For MVP, we'll store the file path
+        # In production, upload to cloud storage (S3, etc.)
+        import os
+        from pathlib import Path
 
-    upload_dir = Path("uploads")
-    upload_dir.mkdir(exist_ok=True)
+        upload_dir = Path("uploads")
+        upload_dir.mkdir(exist_ok=True)
 
-    file_path = upload_dir / file.filename
+        file_path = upload_dir / file.filename
 
-    # Save file
-    with open(file_path, "wb") as f:
-        content = await file.read()
-        f.write(content)
+        # Save file
+        with open(file_path, "wb") as f:
+            content = await file.read()
+            f.write(content)
 
-    # Create law record
-    db_service = DatabaseService(db)
-    law_data = LawCreate(
-        title=title or file.filename,
-        pdf_url=str(file_path)
-    )
-    law = db_service.create_law(law_data)
+        # Create law record
+        db_service = DatabaseService(db)
+        law_data = LawCreate(
+            title=title or file.filename,
+            pdf_url=str(file_path)
+        )
+        law = db_service.create_law(law_data)
 
-    return law
+        return law
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        print(f"Error uploading law: {e}")
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Failed to upload law: {str(e)}")
