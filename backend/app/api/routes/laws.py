@@ -87,12 +87,13 @@ async def upload_law_pdf(
         print(f"File saved to: {file_path}")
         print(f"File exists: {file_path.exists()}")
         print(f"File size: {file_path.stat().st_size if file_path.exists() else 0}")
+        print(f"Absolute path: {file_path.absolute()}")
 
         # Create law record
         db_service = DatabaseService(db)
         law_data = LawCreate(
             title=title or file.filename,
-            pdf_url=str(file_path)  # Store full absolute path
+            pdf_url=str(file_path.absolute())  # Ensure absolute path
         )
         law = db_service.create_law(law_data)
 
