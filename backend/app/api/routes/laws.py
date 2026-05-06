@@ -69,7 +69,8 @@ async def upload_law_pdf(
         import os
         from pathlib import Path
 
-        upload_dir = Path("uploads")
+        # Use absolute path for Railway volume compatibility
+        upload_dir = Path("/app/uploads") if os.path.exists("/app/uploads") else Path("uploads")
         upload_dir.mkdir(exist_ok=True)
 
         file_path = upload_dir / file.filename
